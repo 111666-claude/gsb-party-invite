@@ -2,7 +2,7 @@
 
 import argparse
 
-from .party import Party, accept, invite
+from .party import Party, PartyError, accept, invite
 
 
 def build_parser():
@@ -16,7 +16,10 @@ def main(argv=None):
     if args.sample == "timeout":
         party = Party("leader")
         invite(party, "late", 0, ttl=30)
-        accept(party, "late", 500)  # 早已超时
+        try:
+            accept(party, "late", 500)  # 早已超时
+        except PartyError:
+            pass
         print("joined=%s members=%d" % ("late" in party.members, len(party.members)))
     elif args.sample == "full":
         party = Party("leader", capacity=4)
@@ -24,7 +27,10 @@ def main(argv=None):
             invite(party, name, 0)
             accept(party, name, 1)
         invite(party, "p4", 2)
-        accept(party, "p4", 3)  # 已经满员
+        try:
+            accept(party, "p4", 3)  # 已经满员
+        except PartyError:
+            pass
         print("members=%d capacity=%d" % (len(party.members), party.capacity))
     return 0
 
